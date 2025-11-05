@@ -1,0 +1,12 @@
+title: Cameras
+path: cameras
+icon: mdi:cctv
+type: masonry
+
+cards:
+  - type: picture-glance
+    title: Garage Cam
+    camera_view: live
+    fit_mode: cover
+    camera_image: camera.garage_cam
+    entities: []

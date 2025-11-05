@@ -1,0 +1,93 @@
+title: Roku
+path: roku
+type: sections
+
+sections:
+  - type: grid
+    columns: 1
+    cards:
+      - type: custom:mushroom-media-player-card
+        entity: media_player.roku_family_room
+        name: Family Room TV
+        use_media_info: true
+        collapsible_controls: true
+
+      - type: custom:mushroom-chips-card
+        chips:
+          - type: template
+            icon: mdi:netflix
+            content: Netflix
+            tap_action:
+              action: call-service
+              service: media_player.select_source
+              target: { entity_id: media_player.roku_family_room }
+              data: { source: "Netflix" }
+          - type: template
+            icon: mdi:amazon
+            content: Prime
+            tap_action:
+              action: call-service
+              service: media_player.select_source
+              target: { entity_id: media_player.roku_family_room }
+              data: { source: "Prime Video" }
+          - type: template
+            icon: mdi:youtube-tv
+            content: YouTube TV
+            tap_action:
+              action: call-service
+              service: media_player.select_source
+              target: { entity_id: media_player.roku_family_room }
+              data: { source: "YouTube TV" }
+          - type: template
+            icon: mdi:disney
+            content: Disney+
+            tap_action:
+              action: call-service
+              service: media_player.select_source
+              target: { entity_id: media_player.roku_family_room }
+              data: { source: "Disney Plus" }
+
+      - type: grid
+        columns: 5
+        square: false
+        cards:
+          - type: custom:mushroom-template-card
+            primary: Home
+            icon: mdi:home
+            tap_action:
+              action: call-service
+              service: remote.send_command
+              target: { entity_id: remote.roku_family_room }
+              data: { command: home }
+          - type: custom:mushroom-template-card
+            primary: Back
+            icon: mdi:arrow-left
+            tap_action:
+              action: call-service
+              service: remote.send_command
+              target: { entity_id: remote.roku_family_room }
+              data: { command: back }
+          - type: custom:mushroom-template-card
+            primary: Select
+            icon: mdi:circle-medium
+            tap_action:
+              action: call-service
+              service: remote.send_command
+              target: { entity_id: remote.roku_family_room }
+              data: { command: select }
+          - type: custom:mushroom-template-card
+            primary: Vol−
+            icon: mdi:volume-minus
+            tap_action:
+              action: call-service
+              service: remote.send_command
+              target: { entity_id: remote.roku_family_room }
+              data: { command: volume_down }
+          - type: custom:mushroom-template-card
+            primary: Vol+
+            icon: mdi:volume-plus
+            tap_action:
+              action: call-service
+              service: remote.send_command
+              target: { entity_id: remote.roku_family_room }
+              data: { command: volume_up }

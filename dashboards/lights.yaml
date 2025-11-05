@@ -1,0 +1,39 @@
+title: Lights
+path: lights
+type: sections
+max_columns: 4
+
+sections:
+  - type: grid
+    cards:
+      - type: heading
+        heading: New section
+      - type: tile
+        entity: light.theater_theater_area
+      - type: tile
+        entity: light.theater_main_back
+      - type: tile
+        entity: switch.ali_bedside_light_ali_bedside_light_bedside_light
+        icon: mdi:lightbulb
+        vertical: false
+        features_position: bottom
+      - type: tile
+        entity: switch.bobby_bedside_light_bobby_bedside_light_bedside_light
+        icon: mdi:lightbulb
+        vertical: false
+        features_position: bottom
+      - type: tile
+        entity: switch.light_back_left
+        icon: mdi:lightbulb
+        vertical: false
+        features_position: bottom
+      - type: tile
+        entity: switch.living_room_light_living_room_light_light
+        icon: mdi:lightbulb
+        vertical: false
+        features_position: bottom
+      - type: tile
+        entity: switch.garden_lamp_post
+        icon: mdi:lightbulb
+        vertical: false
+        features_position: bottom

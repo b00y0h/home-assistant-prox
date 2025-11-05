@@ -1,0 +1,271 @@
+title: Home
+path: home
+type: sections
+
+sections:
+  - type: grid
+    cards:
+      - type: custom:swipe-card
+        parameters: { effect: coverflow }
+        cards:
+          - type: custom:button-card
+            entity: person.bobby_smith
+            aspect_ratio: 4/4
+            show_name: false
+            show_icon: false
+            styles:
+              card:
+                - padding: 4%
+                - color: var(--primary-text-color)
+                - background-image: |
+                    [[[
+                      const mp = states["media_player.spotify_bob"];
+                      if (mp && mp.state === "playing") {
+                        return 'url("/local/images/bobby_headphones.png")';
+                      } else {
+                        return 'url("/local/images/bobby_smile.png")';
+                      }
+                    ]]]
+                - background-size: 90%
+                - background-repeat: no-repeat
+                - background-position: top center
+                - '--keep-background': 'true'
+              custom_fields:
+                location:
+                  - position: absolute
+                  - left: 4%
+                  - top: 4%
+                  - color: |
+                      [[[
+                        const st = states["person.bobby_smith"]?.state;
+                        if (st === "home") return "var(--success-color)";
+                        if (st === "Work") return "var(--warning-color)";
+                        return "var(--error-color)";
+                      ]]]
+                battery:
+                  - align-self: right
+                  - position: absolute
+                  - right: 4%
+                  - top: 4%
+                  - color: |
+                      [[[
+                        const b = states["sensor.s_word_battery_level"];
+                        if (!b) return "var(--secondary-text-color)";
+                        const v = Number(b.state) || 0;
+                        if (v <= 30) return "var(--error-color)";
+                        if (v <= 50) return "var(--warning-color)";
+                        return "var(--success-color)";
+                      ]]]
+                steps:
+                  - align-self: right
+                  - position: absolute
+                  - left: 4%
+                  - right: 4%
+                  - top: 4%
+                  - color: |
+                      [[[
+                        const s = states["sensor.apple_health_steps"] || states["sensor.google_fit_steps"];
+                        if (!s) return "var(--secondary-text-color)";
+                        return Number(s.state) < 5000 ? "var(--error-color)" : "var(--success-color)";
+                      ]]]
+                media:
+                  - align-self: right
+                  - position: absolute
+                  - bottom: 4%
+                  - right: 4%
+                  - left: 4%
+                  - color: |
+                      [[[
+                        const mp = states["media_player.spotify_bob"];
+                        return (mp && mp.state === "playing")
+                          ? "var(--primary-text-color)"
+                          : "rgba(var(--rgb-primary-text-color), 0)";
+                      ]]]
+            custom_fields:
+              location: |
+                [[[
+                  const st = states["person.bobby_smith"]?.state;
+                  if (st === "home")
+                    return `<ha-icon icon="mdi:home" style="width:22px;height:22px;"></ha-icon>`;
+                  if (st === "Work")
+                    return `<ha-icon icon="mdi:office-building" style="width:22px;height:22px;"></ha-icon>`;
+                  return `<ha-icon icon="mdi:home-export-outline" style="width:22px;height:22px;"></ha-icon>`;
+                ]]]
+              battery: |
+                [[[
+                  const b = states['sensor.s_word_battery_level'];
+                  const v = b ? b.state : '—';
+                  return `<ha-icon icon="mdi:battery" style="width:20px;height:20px;"></ha-icon>
+                          <span>${v}%</span>`;
+                ]]]
+              steps: |
+                [[[
+                  const s = states['sensor.apple_health_steps'] || states['sensor.google_fit_steps'];
+                  const v = s ? s.state : '—';
+                  return `<ha-icon icon="mdi:shoe-formal" style="width:25px;height:25px;"></ha-icon>
+                          <span> ${v}</span>`;
+                ]]]
+              media: |
+                [[[
+                  const mp = states['media_player.spotify_bob'];
+                  const t = mp?.attributes?.media_title ?? '';
+                  const a = mp?.attributes?.media_artist ?? '';
+                  return `<marquee><ha-icon icon="mdi:music" style="width:20px;height:20px;"></ha-icon>
+                          <span> ${t} - ${a}</span></marquee>`;
+                ]]]
+          - type: custom:stack-in-card
+            mode: vertical
+            cards:
+              - type: custom:button-card
+                entity: person.bobby_smith
+                aspect_ratio: 4/2.85
+                show_name: false
+                show_icon: false
+                styles:
+                  card: [ { padding: 4% } ]
+                  custom_fields:
+                    name:
+                      - font-size: 30px;
+                      - position: absolute
+                      - left: 4%
+                      - top: 4%
+                      - color: var(--primary-text-color)
+                    location:
+                      - position: absolute
+                      - left: 4%
+                      - top: 20%
+                      - color: var(--primary-text-color)
+                    battery:
+                      - align-self: left
+                      - position: absolute
+                      - left: 4%
+                      - top: 30%
+                      - color: var(--primary-text-color)
+                    steps:
+                      - align-self: left
+                      - position: absolute
+                      - left: 4%
+                      - top: 40%
+                      - color: var(--primary-text-color)
+                custom_fields:
+                  name: |
+                    [[[ return '<span> Bobby </span>' ]]]
+                  location: |
+                    [[[
+                      const dt = states["device_tracker.s_word"]?.state;
+                      if (dt === "not_home")
+                        return `<ha-icon icon="mdi:home-export-outline" style="width:22px;height:22px;"></ha-icon>
+                                <span>Location: Not Home</span>`;
+                      if (dt === "Work")
+                        return `<ha-icon icon="mdi:office-building" style="width:22px;height:22px;"></ha-icon>
+                                <span>Location: Work</span>`;
+                      return `<ha-icon icon="mdi:home" style="width:22px;height:22px;"></ha-icon>
+                              <span>Location: Home</span>`;
+                    ]]]
+                  battery: |
+                    [[[
+                      const b = states['sensor.s_word_battery_level']?.state ?? '—';
+                      const st = states['sensor.s_word_battery_state']?.state ?? '—';
+                      return `<ha-icon icon="mdi:battery" style="width:20px;height:20px;"></ha-icon>
+                              <span>Battery: ${b}% - ${st}</span>`;
+                    ]]]
+                  steps: |
+                    [[[
+                      const s = states['sensor.apple_health_steps'] || states['sensor.google_fit_steps'];
+                      const v = s ? s.state : '—';
+                      return `<ha-icon icon="mdi:shoe-formal" style="width:20px;height:20px;"></ha-icon>
+                              <span> Steps: ${v} / 10000</span>`;
+                    ]]]
+                card_mod:
+                  style: |
+                    ha-card { background-color: rgba(0,0,0,0); box-shadow: none; }
+              - type: custom:mini-graph-card
+                entities: [ sensor.apple_health_steps ]
+                hours_to_show: 48
+                graph: line
+                show: { state: false, name: false, icon: false }
+                points_per_hour: 1
+                card_mod:
+                  style: |
+                    ha-card { background-color: rgba(0,0,0,0); box-shadow: none; }
+
+      - type: picture-entity
+        entity: camera.theatre_camera_fluent
+        name: Theatre Camera
+        show_state: true
+        show_name: true
+        camera_view: auto
+        fit_mode: cover
+        camera_image: camera.theatre_camera_fluent
+
+  - type: grid
+    cards:
+      - type: grid
+        square: false
+        columns: 1
+        cards:
+          - type: thermostat
+            entity: climate.upstairs
+            features:
+              - type: climate-hvac-modes
+                hvac_modes: [heat, cool, heat_cool, fan, 'off']
+          - type: thermostat
+            entity: climate.downstairs
+            features:
+              - type: climate-hvac-modes
+                hvac_modes: [heat, cool, heat_cool, fan, 'off']
+
+  - type: grid
+    cards:
+      - type: custom:mushroom-cover-card
+        entity: cover.garage_door
+        name: Garage Door
+        secondary_info: state
+        layout: vertical
+        show_buttons_control: true
+        tap_action: { action: toggle }
+        hold_action:
+          action: call-service
+          service: cover.stop_cover
+          target: { entity_id: cover.garage_door }
+        icon: >
+          {% if is_state('cover.garage_door','open') %}mdi:garage-open{% else %}mdi:garage{% endif %}
+        icon_color: >
+          {% if is_state('cover.garage_door','open') %}red{% else %}green{% endif %}
+
+badges:
+  - type: entity
+    entity: binary_sensor.theatre_camera_motion
+    name: Basement Cam
+    show_name: true
+    show_state: false
+    show_icon: true
+
+  - type: custom:mushroom-template-badge
+    icon: mdi:lightbulb-group
+    content: >
+      {% set count = expand('light.lighting_lights','switch.lighting_switches')
+          | selectattr('state','eq','on') | list | count %}
+      {{ count }}
+    icon_color: >
+      {% set count = expand('light.lighting_lights','switch.lighting_switches')
+          | selectattr('state','eq','on') | list | count %}
+      {{ 'amber' if count|int > 0 else 'disabled' }}
+    tap_action:
+      action: call-service
+      service: script.lighting_toggle_all
+
+  - type: custom:mushroom-template-badge
+    entity: cover.garage_door
+    icon: >
+      {% if is_state(entity, 'open') %}mdi:garage-open{% else %}mdi:garage{% endif %}
+    content: "{{ 'Open' if is_state(entity, 'open') else 'Closed' }}"
+    icon_color: "{{ 'red' if is_state(entity, 'open') else 'green' }}"
+    tap_action: { action: toggle }
+
+  - type: custom:mushroom-template-badge
+    entity: input_boolean.garage_night_nag_mute
+    icon: mdi:bell-off
+    content: "{{ 'Nag: Muted' if is_state(entity, 'on') else 'Nag: Active' }}"
+    icon_color: "{{ 'red' if is_state(entity, 'on') else 'green' }}"
+    tap_action: { action: toggle }

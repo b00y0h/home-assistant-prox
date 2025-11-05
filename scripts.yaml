@@ -1,0 +1,47 @@
+lighting_toggle_all:
+  alias: Lighting – toggle all
+  mode: single
+  sequence:
+  - variables:
+      on_count: "{{ expand('light.lighting_lights','switch.lighting_switches')\n   |
+        selectattr('state','eq','on') | list | count }}"
+  - choose:
+    - conditions:
+      - condition: template
+        value_template: '{{ on_count | int > 0 }}'
+      sequence:
+      - target:
+          entity_id:
+          - light.lighting_lights
+          - switch.lighting_switches
+        action: homeassistant.turn_off
+    default:
+    - target:
+        entity_id:
+        - light.lighting_lights
+        - switch.lighting_switches
+      action: homeassistant.turn_on
+  description: ''
+
+tv_send_toast:
+    alias: "TV: Send toast to LG"
+    mode: single
+    sequence:
+      - condition: template
+        value_template: "{{ states('input_text.lg_toast_message') | trim != '' }}"
+      - action: media_player.play_media
+        continue_on_error: true
+        target:
+          entity_id: media_player.lg_webos_tv
+        data:
+          media_content_id: http://homeassistant.local:8123/local/sfx/elevator-ding.mp3
+          media_content_type: audio/mp3
+      - service: notify.lg_webos_tv_oled83c1pua
+        data:
+          message: "{{ states('input_text.lg_toast_message') }}"
+      - service: input_text.set_value
+        target:
+          entity_id: input_text.lg_toast_message
+        data:
+          value: ""
+

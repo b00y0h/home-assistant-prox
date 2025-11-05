@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cat:*)",
+      "Bash(git -C /config log --oneline --max-count=10)",
+      "WebFetch(domain:www.home-assistant.io)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

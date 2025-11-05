@@ -1,0 +1,278 @@
+- id: '1762291311397'
+  alias: Apple Health Steps
+  description: ''
+  triggers:
+  - trigger: webhook
+    allowed_methods:
+    - POST
+    - PUT
+    local_only: false
+    webhook_id: apple-health-steps
+  conditions: []
+  actions: []
+  mode: single
+
+# 1) Daytime: alert once when open for 10 minutes (non-critical)
+- id: garage_left_open_10m_daytime
+  alias: "Garage door left open (10 min, daytime)"
+  trigger:
+    - platform: state
+      entity_id: cover.garage_door
+      to: "open"
+      for: "00:10:00"
+  condition:
+    - condition: time
+      before: "22:00:00"
+    - condition: state
+      entity_id: input_boolean.garage_night_nag_mute
+      state: "off"
+  action:
+    - service: notify.mobile_app_sword
+      data:
+        title: "Garage door left open"
+        message: "The garage door has been open for 10 minutes."
+    - service: persistent_notification.create
+      data:
+        title: "Garage door left open"
+        message: "The garage door has been open for 10 minutes."
+        notification_id: "garage_open_10m"
+  mode: restart
+
+# 2) Nightly: 10pm–6am, critical alert every 10 minutes while open
+- id: garage_nightly_nag_every_10m
+  alias: "Garage door nightly nag (every 10 min after 10pm)"
+  trigger:
+    - platform: time_pattern
+      minutes: "/10"
+  condition:
+    - condition: time
+      after: "22:00:00"
+      before: "06:00:00"
+    - condition: state
+      entity_id: cover.garage_door
+      state: "open"
+    - condition: state
+      entity_id: input_boolean.garage_night_nag_mute
+      state: "off"
+  action:
+    # NEW: mirror the nag on the TV if it's on
+    - choose:
+        - conditions:
+            - condition: state
+              entity_id: media_player.lg_webos_tv
+              state: "on"
+          sequence:
+            - action: media_player.play_media
+              continue_on_error: true
+              target:
+                entity_id: media_player.lg_webos_tv
+              data:
+                media_content_id: http://homeassistant.local:8123/local/sfx/elevator-ding.mp3
+                media_content_type: audio/mp3
+            - action: notify.lg_webos_tv_oled83c1pua
+              data:
+                message: >
+                  Garage is still open ({{ now().strftime('%-I:%M %p') }}).
+    # Existing push + banner
+    - service: notify.mobile_app_sword
+      data:
+        title: "Garage door is STILL open"
+        message: >
+          The garage door is still open ({{ now().strftime('%-I:%M %p') }}).
+        data:
+          tag: garage_nag
+          actions:
+            - action: "GARAGE_CLOSE"
+              title: "Close now"
+            - action: "GARAGE_MUTE_30"
+              title: "Mute 30 min"
+          push:
+            interruption-level: critical
+            sound:
+              name: default
+              critical: 1
+              volume: 1.0
+    - service: persistent_notification.create
+      data:
+        title: "Garage door is STILL open"
+        message: "It remains open. Please close it."
+        notification_id: "garage_open_nightly"
+  mode: single
+
+# 3) Reset mute at 6am and clear the nightly banner
+- id: garage_nag_reset_at_6am
+  alias: "Garage nag: reset mute at 6am"
+  trigger:
+    - platform: time
+      at: "06:00:00"
+  action:
+    - service: input_boolean.turn_off
+      target:
+        entity_id: input_boolean.garage_night_nag_mute
+    - service: persistent_notification.dismiss
+      data:
+        notification_id: "garage_open_nightly"
+  mode: single
+  
+- id: garage_close_from_push
+  alias: "Garage: close from push"
+  trigger:
+    - platform: event
+      event_type: mobile_app_notification_action
+      event_data: { action: "GARAGE_CLOSE" }
+  condition: []
+  action:
+    - service: cover.close_cover
+      target: { entity_id: cover.garage_door }
+
+- id: garage_mute_30_from_push
+  alias: "Garage: mute 30 minutes from push"
+  trigger:
+    - platform: event
+      event_type: mobile_app_notification_action
+      event_data: { action: "GARAGE_MUTE_30" }
+  action:
+    - service: input_boolean.turn_on
+      target: { entity_id: input_boolean.garage_night_nag_mute }
+    - delay: "00:30:00"
+    - service: input_boolean.turn_off
+      target: { entity_id: input_boolean.garage_night_nag_mute }
+      
+- id: roku_bedtime_powerdown
+  alias: "Roku: power off at 11:30 pm if not playing"
+  trigger:
+    - platform: time
+      at: "23:30:00"
+  condition:
+    - condition: not
+      conditions:
+        - condition: state
+          entity_id: media_player.roku_family_room
+          state: playing
+  action:
+    - service: media_player.turn_off
+      target: { entity_id: media_player.roku_family_room }
+      
+- id: roku_open_youtube_tv
+  alias: "Roku: open YouTube TV"
+  trigger: []
+  action:
+    - action: media_player.select_source
+      target: { entity_id: media_player.roku_family_room }
+      data: { source: "YouTube TV" }
+
+- id: roku_open_netflix
+  alias: "Roku: open Netflix"
+  trigger: []
+  action:
+    - action: media_player.select_source
+      target: { entity_id: media_player.roku_family_room }
+      data: { source: "Netflix" }
+
+- id: roku_open_prime
+  alias: "Roku: open Prime Video"
+  trigger: []
+  action:
+    - action: media_player.select_source
+      target: { entity_id: media_player.roku_family_room }
+      data: { source: "Prime Video" }
+      
+- id: tv_movie_mode_on_streamers
+  alias: "TV • Movie mode ON (Netflix/Prime/Plex)"
+  mode: restart
+  triggers:
+    - trigger: state
+      entity_id: media_player.lg_webos_tv
+      attribute: source
+      to: "Netflix"
+    - trigger: state
+      entity_id: media_player.lg_webos_tv
+      attribute: source
+      to: "Prime Video"
+    - trigger: state
+      entity_id: media_player.lg_webos_tv
+      attribute: source
+      to: "Plex"
+  actions:
+    # Snapshot current theater lights so we can restore later
+    - action: scene.create
+      data:
+        scene_id: theater_prev_lights
+        snapshot_entities:
+          - light.theater_main_back
+          - light.theater_theater_area
+
+    # Turn off lights for movie watching
+    - action: light.turn_off
+      target:
+        entity_id:
+          - light.theater_main_back
+          - light.theater_theater_area
+
+    # (Optional) ensure eARC/ARC output
+    - action: webostv.select_sound_output
+      target: { entity_id: media_player.lg_webos_tv }
+      data: { sound_output: external_arc }
+
+- id: tv_movie_mode_off_restore
+  alias: "TV • Movie mode OFF (restore lights)"
+  mode: restart
+  triggers:
+    # Any source change…
+    - trigger: state
+      entity_id: media_player.lg_webos_tv
+      attribute: source
+    # …or TV powers off
+    - trigger: state
+      entity_id: media_player.lg_webos_tv
+      to: "off"
+  conditions:
+    # Proceed if we're no longer on Netflix/Prime/Plex OR the TV is off
+    - condition: template
+      value_template: >
+        {{ states('media_player.lg_webos_tv') == 'off'
+           or state_attr('media_player.lg_webos_tv','source')
+              not in ['Netflix','Prime Video','Plex'] }}
+  actions:
+    - action: scene.turn_on
+      target: { entity_id: scene.theater_prev_lights }
+      
+- id: tv_brighten_on_pause_streamers
+  alias: "TV • Pause → lights to 30% (Netflix/Prime/Plex)"
+  mode: restart
+  triggers:
+    - trigger: state
+      entity_id: media_player.lg_webos_tv
+      to: paused
+  conditions:
+    - condition: template
+      value_template: >
+        {{ state_attr('media_player.lg_webos_tv','source')
+           in ['Netflix','Prime Video','Plex'] }}
+  actions:
+    - action: light.turn_on
+      target:
+        entity_id:
+          - light.theater_main_back
+          - light.theater_theater_area
+      data:
+        brightness_pct: 30
+        
+- id: tv_dim_on_play_streamers
+  alias: "TV • Play → lights OFF (Netflix/Prime/Plex)"
+  mode: restart
+  triggers:
+    - trigger: state
+      entity_id: media_player.lg_webos_tv
+      to: playing
+  conditions:
+    - condition: template
+      value_template: >
+        {{ state_attr('media_player.lg_webos_tv','source')
+           in ['Netflix','Prime Video','Plex'] }}
+  actions:
+    - action: light.turn_off
+      target:
+        entity_id:
+          - light.theater_main_back
+          - light.theater_theater_area

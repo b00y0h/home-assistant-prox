@@ -1,0 +1,20 @@
+title: Main
+resources:
+  - url: /hacsfiles/button-card/button-card.js
+    type: module
+  - url: /hacsfiles/stack-in-card/stack-in-card.js
+    type: module
+  - url: /hacsfiles/mini-graph-card/mini-graph-card-bundle.js
+    type: module
+  - url: /hacsfiles/swipe-card/swipe-card.js
+    type: module
+  - url: /hacsfiles/lovelace-card-mod/card-mod.js
+    type: module
+  - url: /hacsfiles/mushroom/mushroom.js
+    type: module
+
+views:
+  - !include home.yaml
+  - !include lights.yaml
+  - !include cameras.yaml
+  - !include roku.yaml

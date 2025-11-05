@@ -1,0 +1,108 @@
+# Home Assistant .gitignore
+
+# Sensitive Files - NEVER COMMIT
+secrets.yaml
+*.db-shm
+*.db-wal
+*.log
+*.log.*
+
+# Database
+home-assistant_v2.db
+home-assistant.db
+
+# Storage (contains tokens, auth, and frequently changing data)
+.storage/
+.cloud/
+.google.token
+
+# Temporary Files
+*.pyc
+__pycache__/
+*.pid
+*.xml
+*.crt
+*.csr
+*.key
+*.pem
+
+# Generated/Cache Files
+*.db-journal
+*.uuid
+OZW_Log.txt
+ip_bans.yaml
+
+# Backup Files
+*.backup
+*.bak
+*.old
+backups/
+
+# Dependencies
+deps/
+tts/
+
+# Custom Components (uncomment to exclude)
+# custom_components/
+
+# Themes (if downloaded from HACS)
+themes/*
+!themes/.gitkeep
+
+# WWW/Local Files (images, media, etc.)
+www/*
+!www/.gitkeep
+
+# Specific Directories
+.HA_VERSION
+.cloud
+.google.token
+.spotify-token-cache
+.uuid
+
+# Development
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# HACS (Home Assistant Community Store)
+# Uncomment if you don't want to track HACS files
+# hacs.json
+# custom_components/hacs/
+
+# Zigbee
+zigbee.db
+zigbee.db-shm
+zigbee.db-wal
+
+# Z-Wave
+zwcfg_*.xml
+zwscene.xml
+OZW_Log.txt
+
+# ESPHome
+esphome/
+.esphome/
+
+# Node-RED (if using)
+node-red/
+
+# AppDaemon (if using)
+appdaemon/logs/
+appdaemon/compiled/
+
+# Glances
+glances.conf
+
+# Ring
+*.ring.token.cache
+
+# Notebook checkpoints
+.ipynb_checkpoints/

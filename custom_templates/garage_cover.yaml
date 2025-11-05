@@ -1,0 +1,31 @@
+# file: custom_templates/garage_cover.yaml
+# This file is a *list item* because you're using include_dir_merge_list
+- binary_sensor:
+    - name: "Garage Door Open"
+      unique_id: garage_door_open
+      device_class: opening
+      # Your reed switch reports ON = closed, so invert it:
+      state: "{{ is_state('binary_sensor.garage_door_closed_raw', 'off') }}"
+
+- cover:
+    - name: "Garage Door"
+      unique_id: garage_door_cover
+      device_class: garage
+      # Return "open" or "closed" based on the helper above
+      state: >
+        {% if is_state('binary_sensor.garage_door_open','on') %}open{% else %}closed{% endif %}
+      # Opener is momentary: all three actions just pulse the relay
+      open_cover:
+        - service: switch.turn_on
+          target:
+            entity_id: switch.garage_door_relay
+      close_cover:
+        - service: switch.turn_on
+          target:
+            entity_id: switch.garage_door_relay
+      stop_cover:
+        - service: switch.turn_on
+          target:
+            entity_id: switch.garage_door_relay
+      icon: >
+        {% if is_state('binary_sensor.garage_door_open','on') %}mdi:garage-open{% else %}mdi:garage{% endif %}

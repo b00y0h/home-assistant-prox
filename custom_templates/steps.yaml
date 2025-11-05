@@ -1,0 +1,8 @@
+- trigger:
+    - platform: webhook
+      webhook_id: apple-health-steps
+  sensor:
+    - name: "Apple Health Steps"
+      unique_id: ios_steps
+      state: "{{ trigger.json.steps }}"
+      unit_of_measurement: "steps"
